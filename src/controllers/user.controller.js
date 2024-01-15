@@ -1,4 +1,4 @@
-const { RegisterUserDTO, LoginDTO } = require("../dtos/user.dto");
+const { RegisterUserDTO, LoginDTO, UpdateUserDTO } = require("../dtos/user.dto");
 const db = require("../models");
 const User = db.user;
 const bcrypt = require('bcryptjs');
@@ -109,34 +109,38 @@ exports.token = async (req, res) => {
       });
   };
 
-exports.update = (req, res) => {
-  const id = req.params.id;
-  User.update(req.body, {
+exports.update = async (req, res) => {
+  const id = req.user.id;
+  const userDTO = new UpdateUserDTO(req.body);
+
+  const user = await User.findByPk(req.user.id)
+  console.log(user)
+
+  await User.update(userDTO, {
     where: { id },
   })
     .then((num) => {
       if (num == 1) {
         res.json({
           message: "User updated successfully.",
-          data: req.body,
+          data: user.toJSON(),
         });
       } else {
         res.json({
-          message: `Cannot update user with id=${id}. Maybe user was not found or req.body is empty!`,
-          data: req.body,
+          message: `Cannot update user with id=${id}`,
         });
       }
     })
     .catch((err) => {
+        console.error(err)
       res.status(500).json({
         message: err.message || "Some error occurred while updating the user.",
-        data: null,
       });
     });
 };
 
-exports.findOne = (req, res) => {
-  User.findByPk(req.user.id)
+exports.findOne = async (req, res) => {
+  await User.findByPk(req.user.id)
     .then((user) => {
       res.json({
         data: user.toJSON(),

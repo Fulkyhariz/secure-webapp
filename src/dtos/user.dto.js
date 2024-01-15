@@ -25,4 +25,15 @@ class LoginDTO {
     }
 }
 
-module.exports = {RegisterUserDTO, LoginDTO}
+class UpdateUserDTO {
+    firstname;
+    lastname;
+    age;
+    constructor(data){
+        this.firstname = data.firstname;
+        this.lastname = data.lastname;
+        this.age = data.age;
+    }
+}
+
+module.exports = {RegisterUserDTO, LoginDTO, UpdateUserDTO}
