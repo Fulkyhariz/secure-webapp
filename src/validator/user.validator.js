@@ -10,6 +10,16 @@ const registerValidation = () => {
     ]
 } 
 
+const updateValidation = () => {
+    return [
+        body("username").isEmpty(),
+        body("password").isEmpty(),
+        body("firstname").not().isEmpty().isString(),
+        body("lastname").isString(),
+        body("age").not().isEmpty().isNumeric(),
+    ]
+} 
+
 const loginValidation = () => {
     return [
         body("username").not().isEmpty().isString(),
@@ -33,5 +43,6 @@ const validate = (req, res, next) => {
 module.exports = {
   registerValidation,
   loginValidation,
+  updateValidation,
   validate,
 }
