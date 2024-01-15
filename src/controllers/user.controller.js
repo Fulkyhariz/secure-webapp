@@ -1,10 +1,13 @@
-const { UserDTO } = require("../dtos/user.dto");
+const { RegisterUserDTO, LoginDTO } = require("../dtos/user.dto");
 const db = require("../models");
 const User = db.user;
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const {jwtConfig} = require('../config/jwt.config');
 
 exports.register = (req, res) => {
 
-  const user = new UserDTO(req.body);
+  const user = new RegisterUserDTO(req.body);
 
   User.create(user)
     .then((data) => {
@@ -13,27 +16,64 @@ exports.register = (req, res) => {
         data: data.toJSON(),
       });
     })
-    .catch((err) => {
-      res.status(500).json({
-        message: err.message || "Some error occurred while creating the User.",
-        data: null,
-      });
+    .catch(err => {
+        if (err.name === 'SequelizeUniqueConstraintError') {
+            res.status(400).json({ error: 'username already taken'});
+          } else {
+            console.error(err);
+            res.status(500).json({ error: 'internal server error' });
+          }
     });
 };
 
-exports.findAll = (req, res) => {
-  User.findAll()
-    .then((users) => {
-      res.json({
-        message: "Users retrieved successfully.",
-        data: users,
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: err.message || "Some error occurred while retrieving users.",
-        data: null,
-      });
+exports.login = async (req, res) => {
+  const userDTO = new LoginDTO(req.body);
+  await User.findOne({
+    where: {
+        username: userDTO.username,
+    },
+  })
+    .then((user) => {
+        if (!user) {
+            return res.status(401).json({
+                accessToken: null,
+                refreshToken: null,
+                message: "inavlid username or password"
+            });
+        }
+
+        var passwordIsValid = bcrypt.compareSync(userDTO.password, user.password);
+        if (!passwordIsValid) {
+            return res.status(401).send({
+                accessToken: null,
+                refreshToken: null,
+                message: "inavlid username or password"
+            });
+        }
+
+        var accessToken = 'Bearer ' + jwt.sign({
+            id: user.id
+        }, jwtConfig.jwtAccessSecret, {
+            expiresIn: jwtConfig.jwtAccessExpiry
+        });
+
+        var refreshToken = 'Bearer ' + jwt.sign({
+            id: user.id
+        }, jwtConfig.jwtRefreshSecret, {
+            expiresIn: jwtConfig.jwtRefreshExpiry
+        });
+
+        res.status(200).json({
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+        });
+    }).catch(err => {
+        console.error(err)
+        res.status(500).send({
+            accessToken: null,
+            refreshToken: null,
+            message: "internal server error",
+        });
     });
 };
 

@@ -1,6 +1,6 @@
 require('dotenv').config('../../.env')
 
-module.exports = {
+const dbConfig = {
     HOST: process.env.MYSQL_HOST,
     USER: process.env.MYSQL_USER,
     PASSWORD: process.env.MYSQL_PASSWORD,
@@ -13,3 +13,5 @@ module.exports = {
         idle: 10000,
     },
 }
+
+module.exports = {dbConfig}
