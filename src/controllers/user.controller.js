@@ -113,9 +113,6 @@ exports.update = async (req, res) => {
   const id = req.user.id;
   const userDTO = new UpdateUserDTO(req.body);
 
-  const user = await User.findByPk(req.user.id)
-  console.log(user)
-
   await User.update(userDTO, {
     where: { id },
   })
@@ -123,7 +120,7 @@ exports.update = async (req, res) => {
       if (num == 1) {
         res.json({
           message: "User updated successfully.",
-          data: user.toJSON(),
+          data: userDTO,
         });
       } else {
         res.json({
