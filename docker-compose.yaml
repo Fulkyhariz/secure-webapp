@@ -5,6 +5,3 @@ services:
       - .env
     ports:
       - '${MYSQL_PORT}:${MYSQL_PORT}'
-    command: --init-file /data/application/init.sql
-    volumes:
-        - ./init.sql:/data/application/init.sql
