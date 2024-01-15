@@ -1,4 +1,7 @@
-class UserDTO {
+
+const bcrypt = require('bcryptjs');
+
+class RegisterUserDTO {
     username;
     password;
     firstname;
@@ -6,11 +9,20 @@ class UserDTO {
     age;
     constructor(data){
         this.username = data.username;
-        this.password = data.password;
+        this.password = bcrypt.hashSync(data.password, 8);
         this.firstname = data.firstname;
         this.lastname = data.lastname;
         this.age = data.age;
     }
 }
 
-module.exports = {UserDTO}
+class LoginDTO {
+    username;
+    password;
+    constructor(data){
+        this.username = data.username;
+        this.password = data.password;
+    }
+}
+
+module.exports = {RegisterUserDTO, LoginDTO}

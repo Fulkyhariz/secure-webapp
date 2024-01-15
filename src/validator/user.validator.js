@@ -7,3 +7,8 @@ exports.registerValidation = [
     body("lastname").isString(),
     body("age").not().isEmpty().isNumeric(),
 ]
+
+exports.loginValidation = [
+    body("username").not().isEmpty().isString(),
+    body("password").not().isEmpty().isString()
+]
